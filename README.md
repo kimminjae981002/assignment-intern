@@ -1,3 +1,12 @@
+# env
+
+ACCESS_TOKEN_SECRET: JWT ACCESS SECRET KEY
+REFRESH_TOKEN_SECRET: JWT REFRESH SECRET KEY
+
+# Swagger
+
+http://localhost:3000/api-docs/
+
 # [한 달 인턴] Node.js 과제
 
 ### Requirements
