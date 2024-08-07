@@ -8,6 +8,7 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 회원가입
 const users = [];
 
 app.post("/signup", (req, res) => {
@@ -40,7 +41,38 @@ app.post("/signup", (req, res) => {
 
   users.push({ username, password, nickname });
 
-  return res.status(201).json({ message: "회원 가입이 완료되었습니다." });
+  return res.status(201).json({
+    message: {
+      username: "minjae",
+      nickname: "mjmj",
+      authorities: [
+        {
+          authorityName: "ROLE_USER",
+        },
+      ],
+    },
+  });
+});
+
+// jwt 로그인
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const user = users.find((user) => {
+    return user.username === username;
+  });
+
+  if (!user) {
+    console.log("회원가입을 진행해주세요.");
+    return res.status(400).json({ message: "회원가입을 진행해주세요." });
+  }
+
+  if (user.password !== password) {
+    console.log("비밀번호가 틀렸습니다.");
+    return res.status(400).json({ message: "비밀번호가 틀렸습니다." });
+  }
+
+  return res.status(201).json({ message: "로그인이 되었습니다." });
 });
 
 const options = {
