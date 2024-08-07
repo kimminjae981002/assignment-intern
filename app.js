@@ -1,79 +1,17 @@
 const express = require("express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
 
+dotenv.config();
 const app = express();
 const PORT = 3000;
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// 회원가입
-const users = [];
-
-app.post("/signup", (req, res) => {
-  const { username, password, confirmPassword, nickname } = req.body;
-
-  // 배열에서 username이 같다면 true 반환
-  const existingUser = users.some((user) => {
-    return user.username === username;
-  });
-
-  // 배열에서 nickname이 같다면 true 반환
-  const existingUserNickname = users.some((user) => {
-    return user.nickname === nickname;
-  });
-
-  if (existingUser) {
-    console.log("사용하고 있는 username입니다.");
-    return res.status(400).json({ message: "이미 사용 중인 사용자명입니다." });
-  }
-
-  if (existingUserNickname) {
-    console.log("사용하고 있는 nickname입니다.");
-    return res.status(400).json({ message: "이미 사용 중인 별명입니다." });
-  }
-
-  if (password !== confirmPassword) {
-    console.log("비밀번호를 확인해주세요.");
-    return res.status(400).json({ message: "비밀번호가 다릅니다." });
-  }
-
-  users.push({ username, password, nickname });
-
-  return res.status(201).json({
-    message: {
-      username: "minjae",
-      nickname: "mjmj",
-      authorities: [
-        {
-          authorityName: "ROLE_USER",
-        },
-      ],
-    },
-  });
-});
-
-// jwt 로그인
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
-
-  const user = users.find((user) => {
-    return user.username === username;
-  });
-
-  if (!user) {
-    console.log("회원가입을 진행해주세요.");
-    return res.status(400).json({ message: "회원가입을 진행해주세요." });
-  }
-
-  if (user.password !== password) {
-    console.log("비밀번호가 틀렸습니다.");
-    return res.status(400).json({ message: "비밀번호가 틀렸습니다." });
-  }
-
-  return res.status(201).json({ message: "로그인이 되었습니다." });
-});
 
 const options = {
   definition: {
@@ -98,12 +36,172 @@ const options = {
         url: "http://localhost:3000",
       },
     ],
+    components: {
+      securitySchemes: {
+        jwtAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        jwtAuth: [],
+      },
+    ],
   },
   apis: ["src/routes/user.router.js"],
 };
 
 const specs = swaggerJsdoc(options);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+// 회원가입
+// db 이용
+const users = [];
+
+app.post("/signup", (req, res) => {
+  const { username, password, confirmPassword, nickname } = req.body;
+
+  // 배열에서 username이 같다면 true 반환
+  const existingUser = users.some((user) => {
+    return user.username === username;
+  });
+
+  // 배열에서 nickname이 같다면 true 반환
+  const existingUserNickname = users.some((user) => {
+    return user.nickname === nickname;
+  });
+
+  if (existingUser) {
+    return res.status(400).json({ message: "이미 사용 중인 사용자명입니다." });
+  }
+
+  if (existingUserNickname) {
+    return res.status(400).json({ message: "이미 사용 중인 별명입니다." });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "비밀번호가 다릅니다." });
+  }
+
+  users.push({ username, password, nickname });
+
+  return res.status(201).json({
+    message: {
+      username: "minjae",
+      nickname: "mjmj",
+      authorities: [
+        {
+          authorityName: "ROLE_USER",
+        },
+      ],
+    },
+  });
+});
+
+// jwt 로그인
+// db 이용
+const refreshTokens = [];
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const user = users.find((user) => {
+    return user.username === username;
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "회원가입을 진행해주세요." });
+  }
+
+  if (user.password !== password) {
+    return res.status(400).json({ message: "비밀번호가 틀렸습니다." });
+  }
+
+  // jwt 토큰 생성
+  const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "30s",
+  });
+
+  const refreshToken = jwt.sign(
+    { username },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+
+  refreshTokens.push(refreshToken);
+
+  // refreshToken을 cookie에 넣기(클라이언트가 갖고 있는다.)
+  res.cookie("jwt", refreshToken, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  return res.status(201).json({ token: accessToken });
+});
+
+// 사용자 미들웨어
+function authMiddleware(req, res, next) {
+  // 토큰을 request headers에서 가져오기
+  const authHeader = req.headers.authorization;
+
+  // Beare 토큰
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.sendStatus(401);
+
+  // 토큰이 있으면 유효한 토큰인지 확인
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    // authMiddleware를 실행하는 곳에서 req.user를 실행하면 payload값을 가져올 수 있다.
+    next();
+  });
+}
+
+const posts = [
+  { username: "jon", title: "post 1" },
+  { username: "han", title: "post 2" },
+];
+
+// 사용자 미들웨어를 이용해서 가져오기
+app.get("/posts", authMiddleware, (req, res) => {
+  res.json(posts);
+});
+
+// refresh를 이용해서 accessToken 재생성
+app.get("/refresh", (req, res) => {
+  // cookie-parser를 이용해 req.cookies 쿠키를 불러올 수 있다.
+  const cookies = req.cookies;
+  if (!cookies.jwt) {
+    return res.sendStatus(401);
+  }
+
+  const refreshToken = cookies.jwt;
+
+  // refreshToken이 없다면 에러
+  if (!refreshTokens.includes(refreshToken)) {
+    return res.sendStatus(403);
+  }
+
+  // refreshToken이 있다면 accessToken을 새로 생성해준다.
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    const accessToken = jwt.sign(
+      { username: user.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "30s",
+      }
+    );
+
+    res.json({ token: accessToken });
+  });
+});
 
 app.listen(PORT, (req, res) => {
   console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);

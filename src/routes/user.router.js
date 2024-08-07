@@ -124,3 +124,107 @@
  *       400:
  *         description: Invalid username or password
  */
+
+// AUTH 미들웨어
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Post:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The username of the person who created the post
+ *           example: jon
+ *         title:
+ *           type: string
+ *           description: The title of the post
+ *           example: post 1
+ *     PostListResponse:
+ *       type: array
+ *       items:
+ *         $ref: '#/components/schemas/Post'
+ *   securitySchemes:
+ *     jwtAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ * security:
+ *   - jwtAuth: []
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: Operations related to posts
+ */
+
+/**
+ * @swagger
+ * /posts:
+ *   get:
+ *     summary: Retrieve a list of posts
+ *     tags: [Posts]
+ *     description: Fetches a list of posts. Requires authentication via JWT.
+ *     responses:
+ *       200:
+ *         description: A list of posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PostListResponse'
+ *       401:
+ *         description: Unauthorized, authentication required
+ *     security:
+ *       - jwtAuth: []
+ */
+
+// refresh를 이용한 재생성
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RefreshTokenResponse:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           description: The new access token
+ *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *   securitySchemes:
+ *     jwtAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ * security:
+ *   - jwtAuth: []
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Authentication
+ *   description: User authentication operations
+ */
+
+/**
+ * @swagger
+ * /refresh:
+ *   get:
+ *     summary: Refresh access token using a refresh token
+ *     tags: [Authentication]
+ *     description: Validates the refresh token and provides a new access token. Requires authentication via JWT.
+ *     responses:
+ *       200:
+ *         description: A new access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RefreshTokenResponse'
+ *       403:
+ *         description: Forbidden, invalid or missing refresh token
+ *     security:
+ *       - jwtAuth: []
+ */
