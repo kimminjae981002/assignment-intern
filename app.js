@@ -74,10 +74,10 @@ app.post("/signup", (req, res) => {
     return user.nickname === nickname;
   });
 
-  if (username.length < 5) {
+  if (username.length < 3 || username.length > 10) {
     return res
       .status(400)
-      .json({ message: "사용자명은 5글자 이상이어야 합니다." });
+      .json({ message: "사용자명은 3글자 이상 10글자 이하이어야 합니다." });
   }
 
   if (!password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/)) {
@@ -87,10 +87,10 @@ app.post("/signup", (req, res) => {
     });
   }
 
-  if (nickname.length < 4 || nickname.length > 10) {
+  if (nickname.length < 5 || nickname.length > 20) {
     return res
       .status(400)
-      .json({ message: "별명은 4자 이상 10자 이하이어야 합니다." });
+      .json({ message: "별명은 5글자 이상 20글자 이하이어야 합니다." });
   }
 
   if (existingUser) {
@@ -109,8 +109,8 @@ app.post("/signup", (req, res) => {
 
   return res.status(201).json({
     message: {
-      username: "minjae",
-      nickname: "mjmj",
+      username,
+      nickname,
       authorities: [
         {
           authorityName: "ROLE_USER",
@@ -160,7 +160,7 @@ app.post("/login", (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  return res.status(201).json({ token: accessToken });
+  return res.status(200).json({ token: accessToken });
 });
 
 // 사용자 미들웨어
@@ -222,6 +222,12 @@ app.get("/refresh", (req, res) => {
   });
 });
 
-app.listen(PORT, (req, res) => {
-  console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
-});
+// 테스트를 위해 export
+module.exports = app;
+
+// main 모듈일 때만 실행 중복 실행 방지
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
+  });
+}
