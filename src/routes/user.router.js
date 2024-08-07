@@ -21,11 +21,13 @@
  *         password:
  *           type: string
  *           description: The user's password
- *           minLength: 8
+ *           minLength: 6
+ *           pattern: '/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/'
  *         confirmPassword:
  *           type: string
- *           minLength: 8
+ *           minLength: 6
  *           description: The user's confirmation password
+ *           pattern: '/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/'
  *         nickname:
  *           type: string
  *           description: The user's nickname
@@ -33,8 +35,8 @@
  *           maxLength: 10
  *       example:
  *         username: minjae
- *         password: "12345678"
- *         confirmPassword: "12345678"
+ *         password: "abc123@#!"
+ *         confirmPassword: "abc123@#!"
  *         nickname: mjmj
  */
 

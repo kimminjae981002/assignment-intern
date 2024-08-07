@@ -74,6 +74,25 @@ app.post("/signup", (req, res) => {
     return user.nickname === nickname;
   });
 
+  if (username.length < 5) {
+    return res
+      .status(400)
+      .json({ message: "사용자명은 5글자 이상이어야 합니다." });
+  }
+
+  if (!password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/)) {
+    return res.status(400).json({
+      message:
+        "비밀번호는 최소 6자리로 한글, 영문, 숫자, 특수문자(!, @, #)를 포함해야 합니다.",
+    });
+  }
+
+  if (nickname.length < 4 || nickname.length > 10) {
+    return res
+      .status(400)
+      .json({ message: "별명은 4자 이상 10자 이하이어야 합니다." });
+  }
+
   if (existingUser) {
     return res.status(400).json({ message: "이미 사용 중인 사용자명입니다." });
   }
