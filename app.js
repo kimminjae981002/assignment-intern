@@ -1,9 +1,12 @@
 const express = require("express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const users = [];
 
@@ -12,12 +15,12 @@ app.post("/signup", (req, res) => {
 
   // 배열에서 username이 같다면 true 반환
   const existingUser = users.some((user) => {
-    user.username === username;
+    return user.username === username;
   });
 
   // 배열에서 nickname이 같다면 true 반환
   const existingUserNickname = users.some((user) => {
-    user.nickname === nickname;
+    return user.nickname === nickname;
   });
 
   if (existingUser) {
@@ -39,6 +42,36 @@ app.post("/signup", (req, res) => {
 
   return res.status(201).json({ message: "회원 가입이 완료되었습니다." });
 });
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "LogRocket Express API with Swagger",
+      version: "0.1.0",
+      description:
+        "This is a simple CRUD API application made with Express and documented with Swagger",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
+      },
+      contact: {
+        name: "LogRocket",
+        url: "https://logrocket.com",
+        email: "info@email.com",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+      },
+    ],
+  },
+  apis: ["src/routes/user.router.js"],
+};
+
+const specs = swaggerJsdoc(options);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.listen(PORT, (req, res) => {
   console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
