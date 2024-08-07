@@ -37,7 +37,7 @@
  *         username: minjae
  *         password: "abc123@#!"
  *         confirmPassword: "abc123@#!"
- *         nickname: mjmj
+ *         nickname: mjmjmj
  */
 
 /**
@@ -85,7 +85,7 @@
  *         password:
  *           type: string
  *           description: The user's password
- *           example: 12345678
+ *           example: abc123@#!
  *     LoginResponse:
  *       type: object
  *       properties:
