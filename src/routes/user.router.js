@@ -44,14 +44,14 @@
  * @swagger
  * tags:
  *   name: Users
- *   description: User management
+ *   description: 유저 회원가입 및 로그인
  */
 
 /**
  * @swagger
  * /signup:
  *   post:
- *     summary: Create a new user
+ *     summary: 회원가입
  *     tags: [Users]
  *     requestBody:
  *       required: true
@@ -101,7 +101,7 @@
  * @swagger
  * tags:
  *   name: Users
- *   description: User management
+ *   description: 로그인(accessToken, refreshToken 발급)
  */
 
 /**
@@ -160,7 +160,7 @@
  * @swagger
  * tags:
  *   name: Posts
- *   description: Operations related to posts
+ *   description: 미들웨어 이용해서 token 발급 후 확인 가능
  */
 
 /**
@@ -208,7 +208,7 @@
  * @swagger
  * tags:
  *   name: Authentication
- *   description: User authentication operations
+ *   description: refreshToken을 이용해 accessToken 재발급
  */
 
 /**
