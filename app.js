@@ -167,6 +167,7 @@ app.post("/login", (req, res) => {
   // refreshToken을 cookie에 넣기(클라이언트가 갖고 있는다.)
   res.cookie("jwt", refreshToken, {
     httpOnly: true,
+    secure: false, // 로컬 환경에서는 false
     maxAge: 24 * 60 * 60 * 1000,
   });
 
