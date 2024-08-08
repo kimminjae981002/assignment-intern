@@ -206,7 +206,9 @@ app.get("/posts", authMiddleware, (req, res) => {
 app.get("/refresh", (req, res) => {
   // cookie-parser를 이용해 req.cookies 쿠키를 불러올 수 있다.
   const cookies = req.cookies;
+  console.log(cookies);
   if (!cookies.jwt) {
+    console.log("haha");
     return res.sendStatus(401);
   }
 
