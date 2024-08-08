@@ -108,7 +108,7 @@
  * @swagger
  * /login:
  *   post:
- *     summary: Log in and receive a JWT token
+ *     summary: 로그인 JWT(accessToken, refreshToken 발급)
  *     tags: [Users]
  *     requestBody:
  *       required: true
@@ -160,14 +160,14 @@
  * @swagger
  * tags:
  *   name: Posts
- *   description: 미들웨어 이용해서 token 발급 후 확인 가능
+ *   description: 수동으로 작성한 게시글
  */
 
 /**
  * @swagger
  * /posts:
  *   get:
- *     summary: Retrieve a list of posts
+ *     summary: 미들웨어 이용해서 token 발급 후 확인 가능
  *     tags: [Posts]
  *     description: Fetches a list of posts. Requires authentication via JWT.
  *     responses:
@@ -208,14 +208,14 @@
  * @swagger
  * tags:
  *   name: Authentication
- *   description: refreshToken을 이용해 accessToken 재발급
+ *   description: refreshToken
  */
 
 /**
  * @swagger
  * /refresh:
  *   get:
- *     summary: Refresh access token using a refresh token
+ *     summary: refreshToken을 이용해 accessToken 재발급
  *     tags: [Authentication]
  *     description: Validates the refresh token and provides a new access token. Requires authentication via JWT.
  *     responses:
