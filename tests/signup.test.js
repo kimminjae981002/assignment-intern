@@ -1,18 +1,6 @@
 const request = require("supertest");
 const app = require("../app");
 
-let server;
-
-beforeAll((done) => {
-  server = app.listen(3001, () => {
-    done();
-  });
-});
-
-afterAll((done) => {
-  server.close(done);
-});
-
 describe("POST /signup", () => {
   it("비밀번호 체크 테스트", async () => {
     const response = await request(app).post("/signup").send({
