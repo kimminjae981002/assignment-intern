@@ -170,6 +170,8 @@ app.post("/login", (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
+  console.log("Set-Cookie:", res.getHeaders()["set-cookie"]);
+
   return res.status(200).json({ token: accessToken });
 });
 
@@ -205,10 +207,9 @@ app.get("/posts", authMiddleware, (req, res) => {
 // refresh를 이용해서 accessToken 재생성
 app.get("/refresh", (req, res) => {
   // cookie-parser를 이용해 req.cookies 쿠키를 불러올 수 있다.
+  console.log(req.headers);
   const cookies = req.cookies;
-  console.log(cookies);
   if (!cookies.jwt) {
-    console.log("haha");
     return res.sendStatus(401);
   }
 
