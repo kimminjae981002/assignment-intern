@@ -5,7 +5,7 @@ REFRESH_TOKEN_SECRET: JWT REFRESH SECRET KEY
 
 # Swagger
 
-http://localhost:3000/api-docs/
+http://3.35.242.127/api-docs
 
 # [한 달 인턴] Node.js 과제
 
