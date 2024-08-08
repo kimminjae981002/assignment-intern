@@ -178,7 +178,7 @@ app.post("/login", (req, res) => {
   res.cookie("jwt", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "None", // 'Strict' 또는 'Lax'로 설정할 수 있습니다.
+    sameSite: "Lax", // 'Strict' , 'Lax' , 'None' 3가지
     maxAge: 24 * 60 * 60 * 1000,
   });
 
