@@ -218,8 +218,9 @@ app.get("/posts", authMiddleware, (req, res) => {
 
 // refresh를 이용해서 accessToken 재생성
 app.get("/refresh", (req, res) => {
+  console.log("헤더이다.", req.headers); // headers 확인
+  console.log("쿠키이다.", req.cookies); // 쿠키 확인
   // cookie-parser를 이용해 req.cookies 쿠키를 불러올 수 있다.
-  console.log(req.headers);
   const cookies = req.cookies;
   if (!cookies.jwt) {
     return res.sendStatus(401);
