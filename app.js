@@ -4,6 +4,7 @@ const swaggerUi = require("swagger-ui-express");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 dotenv.config();
 const app = express();
@@ -12,6 +13,15 @@ const PORT = 3000;
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// CORS 설정
+const corsOptions = {
+  origin: "http://3.35.242.127", // 클라이언트 주소
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 const options = {
   definition: {
