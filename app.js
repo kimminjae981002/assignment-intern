@@ -169,6 +169,7 @@ app.post("/login", (req, res) => {
     httpOnly: true,
     secure: false, // 로컬 환경에서는 false
     maxAge: 24 * 60 * 60 * 1000,
+    sameSite: "None",
   });
 
   console.log("Set-Cookie:", res.getHeaders()["set-cookie"]);
