@@ -64,8 +64,18 @@ const options = {
   apis: ["src/routes/user.router.js"],
 };
 
+const swaggerUiOptions = {
+  swaggerOptions: {
+    withCredentials: true,
+    requestInterceptor: (req) => {
+      req.credentials = "include";
+      return req;
+    },
+  },
+};
+
 const specs = swaggerJsdoc(options);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
 // 회원가입
 // db 이용
