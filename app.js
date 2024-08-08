@@ -45,6 +45,9 @@ const options = {
       {
         url: "http://localhost:3000",
       },
+      {
+        url: "http://3.35.242.127:3000",
+      },
     ],
     components: {
       securitySchemes: {
