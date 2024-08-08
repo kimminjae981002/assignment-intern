@@ -138,7 +138,7 @@
  *         username:
  *           type: string
  *           description: The username of the person who created the post
- *           example: jon
+ *           example: minjae
  *         title:
  *           type: string
  *           description: The title of the post

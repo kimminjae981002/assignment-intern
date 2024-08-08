@@ -193,8 +193,8 @@ function authMiddleware(req, res, next) {
 }
 
 const posts = [
-  { username: "jon", title: "post 1" },
-  { username: "han", title: "post 2" },
+  { username: "minjae", title: "post 1" },
+  { username: "minji", title: "post 2" },
 ];
 
 // 사용자 미들웨어를 이용해서 가져오기
