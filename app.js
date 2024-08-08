@@ -177,12 +177,10 @@ app.post("/login", (req, res) => {
   // refreshToken을 cookie에 넣기(클라이언트가 갖고 있는다.)
   res.cookie("jwt", refreshToken, {
     httpOnly: true,
-    secure: false, // 로컬 환경에서는 false
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "None", // 'Strict' 또는 'Lax'로 설정할 수 있습니다.
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "None",
   });
-
-  console.log("Set-Cookie:", res.getHeaders()["set-cookie"]);
 
   return res.status(200).json({ token: accessToken });
 });
@@ -218,16 +216,14 @@ app.get("/posts", authMiddleware, (req, res) => {
 
 // refresh를 이용해서 accessToken 재생성
 app.get("/refresh", (req, res) => {
-  console.log("헤더이다.", req.headers); // headers 확인
-  console.log("쿠키이다.", req.cookies); // 쿠키 확인
   // cookie-parser를 이용해 req.cookies 쿠키를 불러올 수 있다.
   const cookies = req.cookies;
+
   if (!cookies.jwt) {
     return res.sendStatus(401);
   }
 
   const refreshToken = cookies.jwt;
-
   // refreshToken이 없다면 에러
   if (!refreshTokens.includes(refreshToken)) {
     return res.sendStatus(403);
