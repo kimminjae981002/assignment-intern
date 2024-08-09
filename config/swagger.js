@@ -39,7 +39,7 @@ const options = {
       },
     ],
   },
-  apis: ["src/routes/user.router.js"],
+  apis: ["docs/userDocs.js"],
 };
 
 const swaggerUiOptions = {
