@@ -1,88 +1,29 @@
 const express = require("express");
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
+
+const corsOptions = require("./config/cors");
+const { swaggerUi, swaggerUiOptions, specs } = require("./config/swagger");
 
 dotenv.config();
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS 설정
-const corsOptions = {
-  origin: "http://3.35.242.127", // 클라이언트 주소
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "LogRocket Express API with Swagger",
-      version: "0.1.0",
-      description:
-        "This is a simple CRUD API application made with Express and documented with Swagger",
-      license: {
-        name: "MIT",
-        url: "https://spdx.org/licenses/MIT.html",
-      },
-      contact: {
-        name: "LogRocket",
-        url: "https://logrocket.com",
-        email: "info@email.com",
-      },
-    },
-    servers: [
-      {
-        url: "http://3.35.242.127",
-      },
-    ],
-    components: {
-      securitySchemes: {
-        jwtAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-    security: [
-      {
-        jwtAuth: [],
-      },
-    ],
-  },
-  apis: ["src/routes/user.router.js"],
-};
-
-const swaggerUiOptions = {
-  swaggerOptions: {
-    withCredentials: true,
-    requestInterceptor: (req) => {
-      req.credentials = "include";
-      return req;
-    },
-  },
-};
-
-const specs = swaggerJsdoc(options);
+app.use(corsOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
-
 // 회원가입
 // db 이용
 const users = [];
 
 app.post("/signup", (req, res) => {
   const { username, password, confirmPassword, nickname } = req.body;
+  // db접근하기 때문에 어러처리는 위로 가야된다.
+  // db 접근은 최대한 적게
 
   // 배열에서 username이 같다면 true 반환
   const existingUser = users.some((user) => {
