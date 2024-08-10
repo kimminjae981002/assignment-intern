@@ -3,11 +3,28 @@ const jwt = require("jsonwebtoken");
 // 회원가입
 // db 이용
 const users = [];
-
 const signup = (req, res) => {
   const { username, password, confirmPassword, nickname } = req.body;
   // db접근하기 때문에 어러처리는 위로 가야된다.
   // db 접근은 최대한 적게
+
+  if (username.length < 3 || username.length > 10) {
+    throw new Error("사용자명은 3글자 이상 10글자 이하이어야 합니다.");
+  }
+
+  if (!password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/)) {
+    throw new Error(
+      "비밀번호는 최소 6자리로 한글, 영문, 숫자, 특수문자(!, @, #)를 포함해야 합니다."
+    );
+  }
+
+  if (nickname.length < 5 || nickname.length > 20) {
+    throw new Error("별명은 5글자 이상 20글자 이하이어야 합니다.");
+  }
+
+  if (password !== confirmPassword) {
+    throw new Error("비밀번호가 다릅니다.");
+  }
 
   // 배열에서 username이 같다면 true 반환
   const existingUser = users.some((user) => {
@@ -19,35 +36,12 @@ const signup = (req, res) => {
     return user.nickname === nickname;
   });
 
-  if (username.length < 3 || username.length > 10) {
-    return res
-      .status(400)
-      .json({ message: "사용자명은 3글자 이상 10글자 이하이어야 합니다." });
-  }
-
-  if (!password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/)) {
-    return res.status(400).json({
-      message:
-        "비밀번호는 최소 6자리로 한글, 영문, 숫자, 특수문자(!, @, #)를 포함해야 합니다.",
-    });
-  }
-
-  if (nickname.length < 5 || nickname.length > 20) {
-    return res
-      .status(400)
-      .json({ message: "별명은 5글자 이상 20글자 이하이어야 합니다." });
+  if (existingUserNickname) {
+    throw new Error("이미 사용 중인 별명입니다.");
   }
 
   if (existingUser) {
-    return res.status(400).json({ message: "이미 사용 중인 사용자명입니다." });
-  }
-
-  if (existingUserNickname) {
-    return res.status(400).json({ message: "이미 사용 중인 별명입니다." });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "비밀번호가 다릅니다." });
+    throw new Error("이미 사용 중인 사용자명입니다.");
   }
 
   users.push({ username, password, nickname });
@@ -77,11 +71,11 @@ const login = (req, res) => {
   });
 
   if (!user) {
-    return res.status(400).json({ message: "회원가입을 진행해주세요." });
+    throw new Error("회원가입을 진행해주세요.");
   }
 
   if (user.password !== password) {
-    return res.status(400).json({ message: "비밀번호가 틀렸습니다." });
+    throw new Error("비밀번호가 틀렸습니다.");
   }
 
   // jwt 토큰 생성

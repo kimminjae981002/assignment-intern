@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const corsOptions = require("./config/cors");
 const { swaggerUi, swaggerUiOptions, specs } = require("./config/swagger");
 const userRouter = require("./src/routes/user.router");
+const { ErrorHandler } = require("./middleware/ErrorHandler");
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,8 @@ app.use("/api", userRouter);
 
 // 테스트를 위해 export
 module.exports = app;
+
+app.use(ErrorHandler);
 
 // main 모듈일 때만 실행 중복 실행 방지
 if (require.main === module) {
