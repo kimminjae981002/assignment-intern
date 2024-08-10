@@ -1,5 +1,5 @@
 const express = require("express");
-const dotenv = require("dotenv");
+
 const cookieParser = require("cookie-parser");
 
 const corsOptions = require("./config/cors");
@@ -7,7 +7,6 @@ const { swaggerUi, swaggerUiOptions, specs } = require("./config/swagger");
 const userRouter = require("./src/routes/user.router");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 

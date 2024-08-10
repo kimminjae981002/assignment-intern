@@ -1,9 +1,12 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const dotenv = require("dotenv");
 
+dotenv.config();
 // 회원가입
 // db 이용
 const users = [];
-const signup = (req, res) => {
+const signup = async (req, res) => {
   const { username, password, confirmPassword, nickname } = req.body;
   // db접근하기 때문에 어러처리는 위로 가야된다.
   // db 접근은 최대한 적게
@@ -44,7 +47,9 @@ const signup = (req, res) => {
     throw new Error("이미 사용 중인 사용자명입니다.");
   }
 
-  users.push({ username, password, nickname });
+  const hashedPassword = await bcrypt.hash(password, +process.env.saltRounds);
+
+  users.push({ username, password: hashedPassword, nickname });
 
   return res.status(201).json({
     message: {
@@ -63,7 +68,7 @@ const signup = (req, res) => {
 // db 이용
 const refreshTokens = [];
 
-const login = (req, res) => {
+const login = async (req, res) => {
   const { username, password } = req.body;
 
   const user = users.find((user) => {
@@ -74,7 +79,9 @@ const login = (req, res) => {
     throw new Error("회원가입을 진행해주세요.");
   }
 
-  if (user.password !== password) {
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
     throw new Error("비밀번호가 틀렸습니다.");
   }
 
