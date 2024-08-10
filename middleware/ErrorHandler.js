@@ -12,6 +12,7 @@ const ErrorHandler = (err, req, res, next) => {
   };
 
   const errorCode = errorCodeMap[err.message];
+
   if (errorCode)
     return res.status(errorCode).json({ success: false, message: err.message });
 

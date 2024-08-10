@@ -1,5 +1,3 @@
-const cors = require("cors");
-
 // CORS 설정
 const corsOptions = {
   origin: "http://localhost:3000", // 클라이언트 주소
@@ -7,4 +5,4 @@ const corsOptions = {
   credentials: true,
 };
 
-module.exports = cors(corsOptions);
+module.exports = { corsOptions };

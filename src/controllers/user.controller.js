@@ -1,57 +1,62 @@
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
+const { connection } = require("../../config/database");
 
 const { generateToken } = require("../../utils/jwt");
 
 dotenv.config();
 // 회원가입
-// db 이용
-const users = [];
-const signup = async (req, res) => {
+
+const signup = async (req, res, next) => {
   const { username, password, confirmPassword, nickname } = req.body;
   // db접근하기 때문에 어러처리는 위로 가야된다.
   // db 접근은 최대한 적게
 
   if (username.length < 3 || username.length > 10) {
-    throw new Error("사용자명은 3글자 이상 10글자 이하이어야 합니다.");
+    return next(new Error("사용자명은 3글자 이상 10글자 이하이어야 합니다."));
   }
 
   if (!password.match(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#])[A-Za-z\d!@#]{6,}$/)) {
-    throw new Error(
-      "비밀번호는 최소 6자리로 한글, 영문, 숫자, 특수문자(!, @, #)를 포함해야 합니다."
+    return next(
+      new Error(
+        "비밀번호는 최소 6자리로 한글, 영문, 숫자, 특수문자(!, @, #)를 포함해야 합니다."
+      )
     );
   }
 
   if (nickname.length < 5 || nickname.length > 20) {
-    throw new Error("별명은 5글자 이상 20글자 이하이어야 합니다.");
+    return next(new Error("별명은 5글자 이상 20글자 이하이어야 합니다."));
   }
 
   if (password !== confirmPassword) {
-    throw new Error("비밀번호가 다릅니다.");
+    return next(new Error("비밀번호가 다릅니다."));
   }
 
-  // 배열에서 username이 같다면 true 반환
-  const existingUser = users.some((user) => {
-    return user.username === username;
-  });
+  const [existingUsername] = await connection
+    .promise()
+    .query("SELECT * FROM users WHERE username = ? ", [username]);
 
-  // 배열에서 nickname이 같다면 true 반환
-  const existingUserNickname = users.some((user) => {
-    return user.nickname === nickname;
-  });
-
-  if (existingUserNickname) {
-    throw new Error("이미 사용 중인 별명입니다.");
+  if (existingUsername.length > 0) {
+    return next(new Error("이미 사용 중인 사용자명입니다."));
   }
 
-  if (existingUser) {
-    throw new Error("이미 사용 중인 사용자명입니다.");
+  const [existingNickname] = await connection
+    .promise()
+    .query("SELECT * FROM users WHERE nickname = ? ", [nickname]);
+
+  if (existingNickname.length > 0) {
+    return next(new Error("이미 사용 중인 별명입니다."));
   }
 
   const hashedPassword = await bcrypt.hash(password, +process.env.saltRounds);
 
-  users.push({ username, password: hashedPassword, nickname });
+  await connection
+    .promise()
+    .query(
+      "INSERT INTO users (username, password, nickname) VALUES (?, ?, ?)",
+      [username, hashedPassword, nickname]
+    );
 
   return res.status(201).json({
     message: {
@@ -70,21 +75,21 @@ const signup = async (req, res) => {
 // db 이용
 const refreshTokens = [];
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { username, password } = req.body;
 
-  const user = users.find((user) => {
-    return user.username === username;
-  });
+  const [user] = await connection
+    .promise()
+    .query("SELECT * FROM users WHERE username = ?", [username]);
 
-  if (!user) {
-    throw new Error("회원가입을 진행해주세요.");
+  if (!user[0]) {
+    return next(new Error("회원가입을 진행해주세요."));
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user[0].password);
 
   if (!isMatch) {
-    throw new Error("비밀번호가 틀렸습니다.");
+    return next(new Error("비밀번호가 틀렸습니다."));
   }
 
   const { accessToken, refreshToken } = generateToken(user);

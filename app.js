@@ -1,11 +1,12 @@
 const express = require("express");
-
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-const corsOptions = require("./config/cors");
+const { corsOptions } = require("./config/cors");
 const { swaggerUi, swaggerUiOptions, specs } = require("./config/swagger");
-const userRouter = require("./src/routes/user.router");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
+
+const userRouter = require("./src/routes/user.router");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -14,7 +15,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(corsOptions);
+app.use(cors(corsOptions));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
 app.use("/api", userRouter);
