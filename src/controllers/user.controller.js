@@ -1,6 +1,8 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+
+const { generateToken } = require("../../utils/jwt");
 
 dotenv.config();
 // 회원가입
@@ -85,18 +87,7 @@ const login = async (req, res) => {
     throw new Error("비밀번호가 틀렸습니다.");
   }
 
-  // jwt 토큰 생성
-  const accessToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "30s",
-  });
-
-  const refreshToken = jwt.sign(
-    { username },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "1d",
-    }
-  );
+  const { accessToken, refreshToken } = generateToken(user);
 
   refreshTokens.push(refreshToken);
 
